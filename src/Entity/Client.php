@@ -12,7 +12,7 @@ class Client
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'ulid')]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
@@ -120,4 +120,17 @@ class Client
 
         return $this;
     }
+    /* ---------------- JWTUserInterface ---------------- */
+
+    public static function createFromPayload($id, array $payload): static
+    {
+        $client = new static();
+        $client->id   = $id;          // sub claim
+        $client->name = $payload['name'] ?? 'unknown';
+        return $client;
+    }
+
+    public function getUserIdentifier(): string { return $this->id; }
+    public function getRoles(): array           { return ['ROLE_CLIENT']; }
+    public function eraseCredentials(): void    {}
 }
