@@ -6,14 +6,18 @@ use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\IdGenerator\UlidGenerator;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Uid\Ulid;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
-class Client
+class Client implements UserInterface, \Serializable
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'ulid')]
-    private ?int $id = null;
+    #[ORM\Column(type: 'ulid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UlidGenerator::class)]
+    private ?Ulid $id = null;
 
     #[ORM\Column(length: 100)]
     private ?string $name = null;
@@ -38,7 +42,7 @@ class Client
         $this->formSubmissions = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): ?Ulid
     {
         return $this->id;
     }
@@ -131,6 +135,29 @@ class Client
     }
 
     public function getUserIdentifier(): string { return $this->id; }
-    public function getRoles(): array           { return ['ROLE_CLIENT']; }
+    public function getRoles(): array
+    {
+        return ['ROLE_CLIENT'];
+    }
     public function eraseCredentials(): void    {}
+
+    public function serialize()
+    {
+        // TODO: Implement serialize() method.
+    }
+
+    public function unserialize(string $data)
+    {
+        // TODO: Implement unserialize() method.
+    }
+
+    public function __serialize(): array
+    {
+        // TODO: Implement __serialize() method.
+    }
+
+    public function __unserialize(array $data): void
+    {
+        // TODO: Implement __unserialize() method.
+    }
 }

@@ -1,0 +1,22 @@
+{# Email template for contact form submissions #}
+<h2 style="font-family: Arial, sans-serif; margin-bottom: 12px;">
+  New enquiry from {{ submission.client.name }}
+</h2>
+
+<table style="font-family: Arial, sans-serif; border-collapse: collapse;">
+    {# @var submission App\Entity\FormSubmission  #}
+  {% for field in submission.formSubmissionFields %}
+    <tr>
+      <td style="padding: 6px 8px; font-weight: bold; background: #f5f5f5;">
+        {{ field.fieldName|title }}
+      </td>
+      <td style="padding: 6px 8px;">
+        {{ field.fieldValue }}
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<p style="font-family: Arial, sans-serif; margin-top: 16px; font-size: 12px; color: #666;">
+  Received: {{ submission.createdAt|date('Y‑m‑d H:i') }}
+</p>

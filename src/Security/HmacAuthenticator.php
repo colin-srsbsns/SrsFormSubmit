@@ -25,6 +25,7 @@ final class HmacAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): SelfValidatingPassport
     {
+        //dump("HMAC Authenticator called");
         $jwt = substr($request->headers->get('Authorization'), 7);
 
         // 1. grab cid without verifying (header+payload only)
@@ -60,7 +61,7 @@ final class HmacAuthenticator extends AbstractAuthenticator
         TokenInterface $token,
         string $firewallName
     ): ?Response {
-        // Nothing fancy – authentication passed, hand control back to the controller
+        //dump($token->getRoleNames());
         return null;   // returning null tells Symfony to keep processing
     }
 
@@ -68,6 +69,10 @@ final class HmacAuthenticator extends AbstractAuthenticator
         Request $request,
         AuthenticationException $exception
     ): ?Response {
+        //dump("here");
+//        error_log($exception->getMessage());
+//        dump($exception->getMessage());
+//        dump($request->headers->get('Authorization'));
         return new Response('Unauthorized', 401);
     }
 }

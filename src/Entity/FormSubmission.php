@@ -3,37 +3,65 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\Dto\FormSubmissionInput;
 use App\Repository\FormSubmissionRepository;
+use App\State\FormSubmissionProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: FormSubmissionRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new Post(
+            security: "is_granted('ROLE_CLIENT')",
+            input: FormSubmissionInput::class,
+            output: false,       // we don't return the entity
+            processor: FormSubmissionProcessor::class
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['submission:read']],
+            security: "is_granted('ROLE_CLIENT')"
+        ),
+        new GetCollection(
+            normalizationContext: ['groups' => ['submission:read']],
+            security: "is_granted('ROLE_CLIENT')"
+        ),
+    ])]
 class FormSubmission
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['submission:read'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['submission:read'])]
     private array $raw = [];
 
     #[ORM\Column]
+    #[Groups(['submission:read'])]
     private ?bool $processed = null;
 
     #[ORM\Column]
+    #[Groups(['submission:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
      * @var Collection<int, FormSubmissionField>
      */
-    #[ORM\OneToMany(targetEntity: FormSubmissionField::class, mappedBy: 'FormSubmission', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: FormSubmissionField::class, mappedBy: 'FormSubmission', cascade: ['persist'], orphanRemoval: true)]
+    #[Groups(['submission:read'])]
     private Collection $formSubmissionFields;
 
     #[ORM\ManyToOne(inversedBy: 'formSubmissions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['submission:read'])]
     private ?Client $client = null;
 
     public function __construct()

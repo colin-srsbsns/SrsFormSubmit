@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Uid\Ulid;
 
 #[AsCommand(
     name: 'srs:generate-client-token',
@@ -37,8 +38,12 @@ class GenerateClientTokenCommand extends Command
         $ttl = (int)$input->getOption('ttl');
 
         /** @var Client|null $client */
-        $client = $this->em->getRepository(Client::class)->find($ref)
-            ?? $this->em->getRepository(Client::class)->findOneBy(['name' => $ref]);
+        $repo   = $this->em->getRepository(Client::class);
+        $client = $repo->findOneBy(['name' => $ref]);              // 1️⃣ try by name
+
+        if (!$client && Ulid::isValid($ref)) {                     // 2️⃣ fallback to ULID
+            $client = $repo->find($ref);
+        }
 
         if (!$client) {
             $output->writeln("<error>Client '$ref' not found</error>");
