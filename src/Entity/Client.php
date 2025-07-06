@@ -14,10 +14,10 @@ use Symfony\Component\Uid\Ulid;
 class Client implements UserInterface, \Serializable
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'ulid', unique: true)]
+    #[ORM\Column(type: 'string',length: 26, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UlidGenerator::class)]
-    private ?Ulid $id = null;
+    private ?string $id = null;
 
     #[ORM\Column(length: 100)]
     private ?string $name = null;
@@ -42,7 +42,7 @@ class Client implements UserInterface, \Serializable
         $this->formSubmissions = new ArrayCollection();
     }
 
-    public function getId(): ?Ulid
+    public function getId(): ?string
     {
         return $this->id;
     }

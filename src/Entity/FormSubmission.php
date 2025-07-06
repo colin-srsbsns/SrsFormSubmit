@@ -6,8 +6,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Dto\FileUploadInput;
 use App\Dto\FormSubmissionInput;
 use App\Repository\FormSubmissionRepository;
+use App\State\FileUploadProcessor;
 use App\State\FormSubmissionProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -30,6 +33,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new GetCollection(
             normalizationContext: ['groups' => ['submission:read']],
             security: "is_granted('ROLE_CLIENT')"
+        ),
+        new Put(
+            uriTemplate: '/form_submissions/{id}/file',
+            security: "object.getClient() == user",
+            input: FileUploadInput::class,
+            output: false,
+            deserialize: false,
+            processor: FileUploadProcessor::class,
         ),
     ])]
 class FormSubmission
@@ -61,12 +72,18 @@ class FormSubmission
 
     #[ORM\ManyToOne(inversedBy: 'formSubmissions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['submission:read'])]
     private ?Client $client = null;
+
+    /**
+     * @var Collection<int, FormSubmissionFile>
+     */
+    #[ORM\OneToMany(targetEntity: FormSubmissionFile::class, mappedBy: 'formSubmission', orphanRemoval: true)]
+    private Collection $formSubmissionFiles;
 
     public function __construct()
     {
         $this->formSubmissionFields = new ArrayCollection();
+        $this->formSubmissionFiles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -148,6 +165,36 @@ class FormSubmission
     public function setClient(?Client $client): static
     {
         $this->client = $client;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FormSubmissionFile>
+     */
+    public function getFormSubmissionFiles(): Collection
+    {
+        return $this->formSubmissionFiles;
+    }
+
+    public function addFormSubmissionFile(FormSubmissionFile $formSubmissionFile): static
+    {
+        if (!$this->formSubmissionFiles->contains($formSubmissionFile)) {
+            $this->formSubmissionFiles->add($formSubmissionFile);
+            $formSubmissionFile->setFormSubmission($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormSubmissionFile(FormSubmissionFile $formSubmissionFile): static
+    {
+        if ($this->formSubmissionFiles->removeElement($formSubmissionFile)) {
+            // set the owning side to null (unless already changed)
+            if ($formSubmissionFile->getFormSubmission() === $this) {
+                $formSubmissionFile->setFormSubmission(null);
+            }
+        }
 
         return $this;
     }

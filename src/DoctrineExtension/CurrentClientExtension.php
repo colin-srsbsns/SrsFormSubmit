@@ -6,6 +6,7 @@ namespace App\DoctrineExtension;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use App\Entity\Client;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -45,12 +46,14 @@ final class CurrentClientExtension implements QueryCollectionExtensionInterface,
         }
 
         $user = $this->security->getUser();
-        if (!$user) {                        // should not happen (firewall), but be safe
+        if (!$user) {
+            //dump("uh oh");// should not happen (firewall), but be safe
             return;
         }
-
+        /* @var Client $user */
+        //dump($user->getId());
         $rootAlias = $qb->getRootAliases()[0];
         $qb->andWhere(sprintf('%s.client = :current_client', $rootAlias))
-            ->setParameter('current_client', $user->getUserIdentifier());
+            ->setParameter('current_client', $user);
     }
 }

@@ -1,7 +1,7 @@
 services:
   ###> doctrine/doctrine-bundle ###
   database:
-    image: mysql:8.0-oracle        # vetted, still the LTS line
+    image: mysql:8.0       # vetted, still the LTS line
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
       # Change these in prod – same rule as before
@@ -20,6 +20,20 @@ services:
     volumes:
       - database_data:/var/lib/mysql:rw
   ###< doctrine/doctrine-bundle ###
+
+  # phpMyAdmin for local development
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: ${MYSQL_USER:-app}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
+    depends_on:
+      - database
 
 volumes:
   ###> doctrine/doctrine-bundle ###

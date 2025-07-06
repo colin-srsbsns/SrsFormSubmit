@@ -9,6 +9,8 @@ use App\Entity\Client;
 use App\Entity\FormSubmission;
 use App\Message\FormSubmissionMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -35,9 +37,19 @@ public function process(mixed $data, Operation $operation, array $uriVariables =
         $this->em->persist($entity);
         $this->em->flush();
 
-        $this->bus->dispatch(new FormSubmissionMessage($entity->getId(), $data->siteKey));
+        // after $em->flush();
+        $expectsFile = ($data->payload['fileName'] ?? null) !== null;
+
+        if (!$expectsFile) {
+            // 👍 nothing to upload, fire the message now
+            $this->bus->dispatch(new FormSubmissionMessage($entity->getId(), $data->siteKey));
+        }
+
 
         // Return 202 Accepted, empty body
-        return null;
+        return new JsonResponse(
+            ['id' => (string) $entity->getId()],
+            Response::HTTP_CREATED
+        );
     }
 }

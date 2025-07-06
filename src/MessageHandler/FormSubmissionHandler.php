@@ -19,6 +19,7 @@ final class FormSubmissionHandler
     public function __construct(
         private EntityManagerInterface $em,
         private MailerInterface $mailer,
+        private string $uploadDir = '%kernel.project_dir%/public/uploads'
     ) {}
 
     public function __invoke(FormSubmissionMessage $msg): void
@@ -51,7 +52,11 @@ final class FormSubmissionHandler
             ->htmlTemplate('email/form_submission.html.twig')
             ->context(['submission' => $submission]);
 
-
+        // attach every uploaded file
+        foreach ($submission->getFormSubmissionFiles() as $file) {
+            $path = $this->uploadDir.'/'.$file->getStoragePath();
+            $email->attachFromPath($path, $file->getOriginalName(), $file->getMimeType());
+        }
 
         $this->mailer->send($email);
 
