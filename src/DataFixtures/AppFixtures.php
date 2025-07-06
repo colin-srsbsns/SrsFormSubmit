@@ -12,8 +12,8 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         foreach ([
-                     ['SrsBsns',       'forms@srsbsns.co.za','srsbsns'],
-                     ['Bietou Capital', 'admin@bietou.co.za','bietou-capital'],
+                     ['SrsBsns',       'colin@srsbsns.co.za','srsbsns'],
+                     ['Bietou Capital', 'colin@srsbsns.co.za','bietou-capital'],
                  ] as [$name,$recipient,$siteKey]) {
 
             $c = new Client();
