@@ -34,7 +34,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: ['groups' => ['submission:read']],
             security: "is_granted('ROLE_CLIENT')"
         ),
-        new Put(
+        new Post(
             uriTemplate: '/form_submissions/{id}/file',
             security: "object.getClient() == user",
             input: FileUploadInput::class,
@@ -79,6 +79,7 @@ class FormSubmission
      */
     #[ORM\OneToMany(targetEntity: FormSubmissionFile::class, mappedBy: 'formSubmission', orphanRemoval: true)]
     private Collection $formSubmissionFiles;
+
 
     public function __construct()
     {

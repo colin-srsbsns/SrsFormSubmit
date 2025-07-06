@@ -18,5 +18,5 @@
 </table>
 
 <p style="font-family: Arial, sans-serif; margin-top: 16px; font-size: 12px; color: #666;">
-  Received: {{ submission.createdAt|date('Y‑m‑d H:i') }}
+  Received: {{ submission.createdAt|date('Y‑m‑d H:i', submission.client.timezone ?? 'UTC') }}
 </p>

@@ -5,6 +5,8 @@ namespace App\MessageHandler;
 
 use App\Entity\FormSubmissionField;
 
+use App\Entity\ClientSiteKey;
+
 use App\Entity\FormSubmission;
 use App\Message\FormSubmissionMessage;
 use DateTimeImmutable;
@@ -19,8 +21,12 @@ final class FormSubmissionHandler
     public function __construct(
         private EntityManagerInterface $em,
         private MailerInterface $mailer,
-        private string $uploadDir = '%kernel.project_dir%/public/uploads'
-    ) {}
+        private string $uploadDir
+    ) {
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0775, true);
+        }
+    }
 
     public function __invoke(FormSubmissionMessage $msg): void
     {
@@ -66,10 +72,16 @@ final class FormSubmissionHandler
 
     private function lookupRecipient(string $siteKey): string
     {
-        // quick hard-coded map today – put it in DB later
-        return match ($siteKey) {
-            'lovable-client' => 'admin@client.com',
-            default          => 'colin@srsbsns.co.za',
-        };
+        /** @var ClientSiteKey|null $siteKeyEntity */
+        $siteKeyEntity = $this->em
+            ->getRepository(ClientSiteKey::class)
+            ->findOneBy(['siteKey' => $siteKey]);
+
+        if ($siteKeyEntity) {
+            return $siteKeyEntity->getClient()->getRecipient();
+        }
+
+        // fallback – keeps prod live even if DB row missing
+        return 'colin@srsbsns.co.za';
     }
 }

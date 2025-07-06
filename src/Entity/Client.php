@@ -37,9 +37,19 @@ class Client implements UserInterface, \Serializable
     #[ORM\OneToMany(targetEntity: FormSubmission::class, mappedBy: 'client', orphanRemoval: true)]
     private Collection $formSubmissions;
 
+    /**
+     * @var Collection<int, ClientSiteKey>
+     */
+    #[ORM\OneToMany(targetEntity: ClientSiteKey::class, mappedBy: 'Client', orphanRemoval: true)]
+    private Collection $clientSiteKeys;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $timezone = null;
+
     public function __construct()
     {
         $this->formSubmissions = new ArrayCollection();
+        $this->clientSiteKeys = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -159,5 +169,47 @@ class Client implements UserInterface, \Serializable
     public function __unserialize(array $data): void
     {
         // TODO: Implement __unserialize() method.
+    }
+
+    /**
+     * @return Collection<int, ClientSiteKey>
+     */
+    public function getClientSiteKeys(): Collection
+    {
+        return $this->clientSiteKeys;
+    }
+
+    public function addClientSiteKey(ClientSiteKey $clientSiteKey): static
+    {
+        if (!$this->clientSiteKeys->contains($clientSiteKey)) {
+            $this->clientSiteKeys->add($clientSiteKey);
+            $clientSiteKey->setClient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClientSiteKey(ClientSiteKey $clientSiteKey): static
+    {
+        if ($this->clientSiteKeys->removeElement($clientSiteKey)) {
+            // set the owning side to null (unless already changed)
+            if ($clientSiteKey->getClient() === $this) {
+                $clientSiteKey->setClient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
+    }
+
+    public function setTimezone(?string $timezone): static
+    {
+        $this->timezone = $timezone;
+
+        return $this;
     }
 }

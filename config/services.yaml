@@ -25,3 +25,10 @@ services:
         tags:
             - { name: 'api_platform.doctrine.orm.query_extension.collection' }
             - { name: 'api_platform.doctrine.orm.query_extension.item' }
+
+    App\State\FileUploadProcessor:
+        arguments:
+            $uploadDir: '%kernel.project_dir%/public/uploads'
+    App\MessageHandler\FormSubmissionHandler:
+        arguments:
+            $uploadDir: '%kernel.project_dir%/public/uploads'

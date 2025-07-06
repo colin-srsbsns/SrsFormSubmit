@@ -18,4 +18,6 @@ class FileUploadInput
     #[Assert\NotNull]
     #[Assert\File(maxSize: '50M')]
     public UploadedFile $file;
+
+    public string $siteKey = '';
 }
