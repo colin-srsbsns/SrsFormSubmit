@@ -2,10 +2,10 @@
 
 use App\Kernel;
 
-$projectDir = realpath(__DIR__.'/..');   // ↔ /Users/Colin/project on your Mac
+$projectDir = dirname(__DIR__);   // ↔ /Users/Colin/project on your Mac
 // ↔ /usr/home/xxxxx on Xneelo
 echo $projectDir;
-$isXneelo = str_starts_with($projectDir, '/usr/home/');
+$isXneelo = str_starts_with($projectDir, '/usr/www/');
 
 if ($isXneelo) {
     require_once '/usr/home/formsdpmfc/vendor/autoload_runtime.php';// server-specific logging, ini_set, etc.
