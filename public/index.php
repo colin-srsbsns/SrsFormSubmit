@@ -4,7 +4,7 @@ use App\Kernel;
 
 $projectDir = dirname(__DIR__);   // ↔ /Users/Colin/project on your Mac
 // ↔ /usr/home/xxxxx on Xneelo
-echo $projectDir;
+//echo $projectDir;
 $isXneelo = str_starts_with($projectDir, '/usr/www/');
 
 if ($isXneelo) {
