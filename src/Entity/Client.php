@@ -46,6 +46,9 @@ class Client implements UserInterface, \Serializable
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $timezone = null;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $jwtTtl = null;
+
     public function __construct()
     {
         $this->formSubmissions = new ArrayCollection();
@@ -209,6 +212,18 @@ class Client implements UserInterface, \Serializable
     public function setTimezone(?string $timezone): static
     {
         $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    public function getJwtTtl(): ?int
+    {
+        return $this->jwtTtl;
+    }
+
+    public function setJwtTtl(?int $jwtTtl): static
+    {
+        $this->jwtTtl = $jwtTtl;
 
         return $this;
     }
